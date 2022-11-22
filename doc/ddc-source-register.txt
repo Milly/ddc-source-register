@@ -14,7 +14,7 @@ Params			|ddc-source-register-params|
 ==============================================================================
 INTRODUCTION				    *ddc-source-register-introduction*
 
-This source collects registers.
+This source collects |registers|.
 Registers used for |recording| are excluded.
 
 Note that if 0x80 byte is included, it will be determined that the register
@@ -52,7 +52,7 @@ PARAMS						  *ddc-source-register-params*
 registers	(string)
 		Register names to collect.
 		Specify the name of the register to collect, such as "012ab#".
-		If empty, all registers are collected.
+		If empty, all |registers| are collected.
 
 		Default: ""
 
