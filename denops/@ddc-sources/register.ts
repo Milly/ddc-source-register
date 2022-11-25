@@ -11,8 +11,10 @@ import type {
 } from "https://deno.land/x/ddc_vim@v3.1.0/types.ts";
 import {
   has,
+  mode,
   strlen,
 } from "https://deno.land/x/denops_std@v3.9.1/function/mod.ts";
+import type { Position } from "https://deno.land/x/denops_std@v3.9.1/function/types.ts";
 import type { Denops } from "https://deno.land/x/denops_std@v3.9.1/mod.ts";
 import { globalOptions } from "https://deno.land/x/denops_std@v3.9.1/variable/option.ts";
 
@@ -131,32 +133,39 @@ export class Source extends BaseSource<Params, UserData> {
       userData: { contents, wise, word, suffix },
     } = args;
     const line = input + nextInput;
+
     const isConfirmed = line.endsWith(word + suffix);
+    if (!isConfirmed) return;
+
     const hasUnprintable = (
       wise === "l" ||
       contents.length > 1 ||
       this.#reUnprintableChar.test(contents[0])
     );
+    if (!hasUnprintable) return;
 
-    if (isConfirmed && hasUnprintable) {
-      const prefix = line.slice(0, line.length - word.length - suffix.length);
-      const newText = prefix + regContentsToText(contents, wise) + suffix;
-      const cursorCol = newText.length - nextInput.length;
-      const prevText = newText.slice(0, cursorCol);
-      const nextText = newText.slice(cursorCol);
+    const prefix = line.slice(0, line.length - word.length - suffix.length);
+    const newText = prefix + regContentsToText(contents, wise) + suffix;
+    const cursorCol = newText.length - nextInput.length;
+    const prevText = newText.slice(0, cursorCol);
+    const nextText = newText.slice(cursorCol);
+
+    const vimMode = await mode(denops);
+    if (vimMode === "c") {
+      // cmdline insert
+      const cmdText = textToCmdline(newText);
+      const newCursorPos = 1 + (
+        await strlen(denops, textToCmdline(prevText)) as number
+      );
+      await setcmdline(denops, cmdText, newCursorPos);
+    } else {
+      // buffer insert
       const lines = textToRegContents(prevText + nextText);
-
       const prevLines = prevText.split("\n");
       const newLnum = lineNr + prevLines.length - 1;
       const newCol = await strlen(denops, prevLines.at(-1)) as number + 1;
-      const newCursorPos = [0, newLnum, newCol, 0];
-
-      await denops.call(
-        "ddc_source_register#_insert",
-        lineNr,
-        lines,
-        newCursorPos,
-      );
+      const newCursorPos: Position = [0, newLnum, newCol, 0];
+      await insertBuffer(denops, lineNr, lines, newCursorPos);
     }
   }
 
@@ -330,6 +339,10 @@ function textToRegContents(text: string): string[] {
   return text.split("\n").map((s) => s.replaceAll("\x00", "\n"));
 }
 
+function textToCmdline(text: string): string {
+  return text.replaceAll("\n", "\r").replaceAll("\x00", "\n");
+}
+
 function unpritableCharConverter(c: string): string {
   const code = c.charCodeAt(0);
   if (code <= 0x1f) return "^" + String.fromCharCode(code + 0x40);
@@ -345,6 +358,20 @@ function getUnprintableChars(
   return denops.eval(
     "range(0x100)->filter({ _, n -> nr2char(n) !~# '\\p' })",
   ) as Promise<number[]>;
+}
+
+function insertBuffer(
+  denops: Denops,
+  lnum: number,
+  lines: string[],
+  curpos: Position,
+): Promise<void> {
+  return denops.call(
+    "ddc_source_register#_insert",
+    lnum,
+    lines,
+    curpos,
+  ) as Promise<void>;
 }
 
 function bulk_getreginfo(
@@ -373,4 +400,11 @@ function bulk_strlen(denops: Denops, arglist: string[]): Promise<number[]> {
     "map(l:arglist, { _, s -> strlen(s) })",
     { arglist },
   ) as Promise<number[]>;
+}
+
+function setcmdline(denops: Denops, str: string, pos?: number): Promise<number>;
+function setcmdline(denops: Denops, ...args: unknown[]): Promise<number> {
+  return denops.call("ddc_source_register#_setcmdline", ...args) as Promise<
+    number
+  >;
 }
