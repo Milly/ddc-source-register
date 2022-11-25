@@ -5,6 +5,10 @@
 
 Register (yanked text) source plugin for ddc.vim.
 
+- Supports pasting of multiple lines and control codes.
+- Supports pasting in command line mode.
+- Supports control code highlighting. (Requires highlight capable UI)
+
 ## Required
 
 - [denops.vim](https://github.com/vim-denops/denops.vim)
