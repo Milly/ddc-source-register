@@ -9,15 +9,16 @@ Introduction		|ddc-source-register-introduction|
 Install			|ddc-source-register-install|
 Examples		|ddc-source-register-examples|
 Params			|ddc-source-register-params|
+Item Attributes		|ddc-source-register-item-attributes|
 
 
 ==============================================================================
 INTRODUCTION				    *ddc-source-register-introduction*
 
 This source collects |registers|.
-Registers used for |recording| are excluded.
+Excludes those used for |recording|.
 
-Note that if 0x80 byte is included, it will be determined that the register
+Note that if 0x80 byte is contains, it will be determined that the register
 was used for recording.
 
 
@@ -69,6 +70,39 @@ ctrlCharHlGroup	(string)
 		If empty, highlight is disabled.
 
 		Default: "SpecialKey"
+
+
+==============================================================================
+ITEM ATTRIBUTES				 *ddc-source-register-item-attributes*
+
+				     *ddc-source-register-item-attribute-abbr*
+abbr		(string)
+		Register value.
+		Control code is replaced with "^X" and highlighted with
+		|ddc-source-register-param-ctrlCharHlGroup|.
+		It is truncated by |ddc-source-register-param-maxAbbrWidth|.
+
+				     *ddc-source-register-item-attribute-info*
+info		(string)
+		Register value.
+		Control codes is contains as is.
+
+				     *ddc-source-register-item-attribute-kind*
+kind		(string)
+		Register type like |:registers|.
+		Type can be one of:
+		"c"	for |characterwise| text
+		"l"	for |linewise| text
+		"b"	for |blockwise-visual| text
+
+				     *ddc-source-register-item-attribute-menu*
+menu		(string)
+		Register name.
+
+				     *ddc-source-register-item-attribute-word*
+word		(string)
+		Register value.
+		Control code is replaced with "?".
 
 
 ==============================================================================
