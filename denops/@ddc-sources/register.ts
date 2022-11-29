@@ -10,13 +10,17 @@ import type {
   PumHighlight,
 } from "https://deno.land/x/ddc_vim@v3.1.0/types.ts";
 import {
+  getreg,
+  getregtype,
   has,
   mode,
+  printf,
   strlen,
 } from "https://deno.land/x/denops_std@v3.9.1/function/mod.ts";
 import type { Position } from "https://deno.land/x/denops_std@v3.9.1/function/types.ts";
 import type { Denops } from "https://deno.land/x/denops_std@v3.9.1/mod.ts";
 import { globalOptions } from "https://deno.land/x/denops_std@v3.9.1/variable/option.ts";
+import { defer } from "https://deno.land/x/denops_defer@v0.4.0/batch/defer.ts";
 
 type Params = {
   /** Register names to collect. (default: "")
@@ -50,8 +54,6 @@ type RegInfo = {
   regname: string;
   regcontents: string[];
   regtype: string;
-  isunnamed: boolean;
-  points_to?: string;
 };
 
 type Item = SetRequired<DdcItem<UserData>, "abbr" | "user_data">;
@@ -204,7 +206,12 @@ export class Source extends BaseSource<Params, UserData> {
     if (registers.length > 0) {
       regSet = new Set(registers.split("").filter((r) => regSet.has(r)));
     }
-    return bulk_getreginfo(denops, Array.from(regSet));
+    return defer(denops, (helper) =>
+      Array.from(regSet).map((regname) => ({
+        regname,
+        regcontents: getreg(helper, regname, 1, 1) as Promise<string[]>,
+        regtype: getregtype(helper, regname) as Promise<string>,
+      })));
   }
 
   #generateItems(regInfos: RegInfo[], suffix: string): Item[] {
@@ -237,14 +244,18 @@ export class Source extends BaseSource<Params, UserData> {
     items: Item[],
     abbrWidth: number,
   ): Promise<void> {
-    const truncated = await bulk_printf(
+    const format = `%.${abbrWidth}S`;
+    const truncated = await defer(
       denops,
-      `%.${abbrWidth}S`,
-      items.map(({ abbr }) => abbr),
+      (helper) =>
+        items.map((item) => ({
+          item,
+          abbr: printf(helper, format, item.abbr) as Promise<string>,
+        })),
     );
-    items.forEach((item, i) => {
-      item.abbr = truncated[i];
-    });
+    for (const { item, abbr } of truncated) {
+      item.abbr = abbr;
+    }
   }
 
   async #applyHighlights(
@@ -252,26 +263,19 @@ export class Source extends BaseSource<Params, UserData> {
     items: Item[],
     hlGroup: string,
   ): Promise<void> {
-    const itemSlices = items.map((item) => {
-      const { abbr, user_data: { contents, wise } } = item;
-      const text = regContentsToText(contents, wise).slice(0, abbr.length);
-      const slices = text.split(this.#reUnprintableChar).slice(0, -1);
-      return { item, slices };
-    });
-    const sliceBytes = await bulk_strlen(
-      denops,
-      itemSlices.map(({ slices }) => slices).flat(),
-    );
-    let sliceBytesIndex = 0;
-    const itemSliceBytes = itemSlices.map(({ item, slices }) => ({
-      item,
-      slices: slices.map((slice) => ({
-        chars: slice.length,
-        bytes: sliceBytes[sliceBytesIndex++],
-      })),
-    }));
+    const itemSlices = await defer(denops, (helper) =>
+      items.map((item) => {
+        const { abbr, user_data: { contents, wise } } = item;
+        const text = regContentsToText(contents, wise).slice(0, abbr.length);
+        const slices = text.split(this.#reUnprintableChar).slice(0, -1)
+          .map((slice) => ({
+            chars: slice.length,
+            bytes: strlen(helper, slice) as Promise<number>,
+          }));
+        return { item, slices };
+      }));
 
-    for (const { item, slices } of itemSliceBytes) {
+    for (const { item, slices } of itemSlices) {
       if (slices.length > 0) {
         item.highlights = this.#generateHighlights(item.abbr, slices, hlGroup);
       }
@@ -372,34 +376,6 @@ function insertBuffer(
     lines,
     curpos,
   ) as Promise<void>;
-}
-
-function bulk_getreginfo(
-  denops: Denops,
-  arglist: string[],
-): Promise<RegInfo[]> {
-  return denops.call(
-    "ddc_source_register#_bulk_getreginfo",
-    arglist,
-  ) as Promise<RegInfo[]>;
-}
-
-function bulk_printf(
-  denops: Denops,
-  format: string,
-  arglist: unknown[],
-): Promise<string[]> {
-  return denops.eval(
-    "map(l:arglist, { _, a -> printf(l:format, a) })",
-    { format, arglist },
-  ) as Promise<string[]>;
-}
-
-function bulk_strlen(denops: Denops, arglist: string[]): Promise<number[]> {
-  return denops.eval(
-    "map(l:arglist, { _, s -> strlen(s) })",
-    { arglist },
-  ) as Promise<number[]>;
 }
 
 function setcmdline(denops: Denops, str: string, pos?: number): Promise<number>;
