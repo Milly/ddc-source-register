@@ -117,7 +117,7 @@ export class Source extends BaseSource<Params, UserData> {
     ]);
 
     const items = await this.#generateItems(regInfos, nextInput);
-    this.#applyAbbrWidth(denops, items, abbrWidth);
+    await this.#applyAbbrWidth(denops, items, abbrWidth);
 
     if (ctrlCharHlGroup) {
       await this.#applyHighlights(denops, items, ctrlCharHlGroup);
