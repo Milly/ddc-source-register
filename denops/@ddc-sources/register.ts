@@ -60,8 +60,8 @@ const VIM_REGISTERS = [
   "k", "l", "m", "n", "o", "p", "q", "r", "s", "t",
   "u", "v", "w", "x", "y", "z",
   "-", ".", ":", "#", "%", "/", "=",
-];
-const VIM_CLIPBOARD_REGISTERS = ["*", "+"];
+] as const;
+const VIM_CLIPBOARD_REGISTERS = ["*", "+"] as const;
 
 export class Source extends BaseSource<Params, UserData> {
   #unprintable?: Unprintable<UserData>;
@@ -119,7 +119,7 @@ export class Source extends BaseSource<Params, UserData> {
   }
 
   async #getRegisters(denops: Denops, registers: string): Promise<RegInfo[]> {
-    let regSet = new Set([
+    let regSet = new Set<string>([
       ...(this.#hasClipboard ? VIM_CLIPBOARD_REGISTERS : []),
       ...VIM_REGISTERS,
     ]);
@@ -128,11 +128,10 @@ export class Source extends BaseSource<Params, UserData> {
     }
     const reginfos = await defer(
       denops,
-      (helper) =>
-        Array.from(regSet).map(async (regname) => ({
-          ...await getreginfo(helper, regname),
-          regname,
-        })),
+      (helper) => (Array.from(regSet).map(async (regname) => ({
+        ...await getreginfo(helper, regname),
+        regname,
+      }))),
     );
     return reginfos.filter(
       (reginfo): reginfo is RegInfo => Object.hasOwn(reginfo, "regcontents"),
