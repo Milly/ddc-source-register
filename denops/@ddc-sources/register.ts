@@ -17,7 +17,7 @@ import { globalOptions } from "https://deno.land/x/denops_std@v3.12.0/variable/o
 import {
   Unprintable,
   type UnprintableUserData,
-} from "https://deno.land/x/ddc_unprintable@v1.0.0/mod.ts";
+} from "https://deno.land/x/ddc_unprintable@v1.0.1/mod.ts";
 
 type Params = {
   /** Register names to collect. (default: "")
