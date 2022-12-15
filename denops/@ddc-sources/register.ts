@@ -82,10 +82,10 @@ export class Source extends BaseSource<Params, UserData> {
       highlightGroup: ctrlCharHlGroup,
       callbackId: `source/${this.name}`,
     });
-    [this.#hasClipboard] = await Promise.all([
-      has(denops, "clipboard"),
-      this.#unprintable.onInit(args),
-    ]);
+    [this.#hasClipboard] = await defer(denops, (helper) => ([
+      has(helper, "clipboard"),
+      this.#unprintable!.onInit({ ...args, denops: helper }),
+    ] as const));
   }
 
   override async gather(
@@ -97,10 +97,10 @@ export class Source extends BaseSource<Params, UserData> {
       sourceParams: { registers, maxAbbrWidth, ctrlCharHlGroup },
     } = args;
 
-    const [abbrWidth, regInfos] = await Promise.all([
-      this.#getAbbrWidth(denops, maxAbbrWidth),
-      this.#getRegisters(denops, registers),
-    ]);
+    const [abbrWidth, regInfos] = await defer(denops, (helper) => ([
+      this.#getAbbrWidth(helper, maxAbbrWidth),
+      this.#getRegisters(helper, registers),
+    ] as const));
     this.#unprintable!.abbrWidth = abbrWidth;
     this.#unprintable!.highlightGroup = ctrlCharHlGroup;
     const items = await this.#generateItems(regInfos);
