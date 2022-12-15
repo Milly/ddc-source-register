@@ -2,17 +2,18 @@ import type {
   GatherArguments,
   OnCompleteDoneArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.1.0/base/source.ts";
-import { BaseSource } from "https://deno.land/x/ddc_vim@v3.1.0/types.ts";
-import type { Item as DdcItem } from "https://deno.land/x/ddc_vim@v3.1.0/types.ts";
-import { defer } from "https://deno.land/x/denops_defer@v0.4.0/batch/defer.ts";
+} from "https://deno.land/x/ddc_vim@v3.3.0/base/source.ts";
 import {
-  getreg,
-  getregtype,
+  BaseSource,
+  type Item as DdcItem,
+} from "https://deno.land/x/ddc_vim@v3.3.0/types.ts";
+import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
+import {
+  getreginfo,
   has,
-} from "https://deno.land/x/denops_std@v3.9.1/function/mod.ts";
-import type { Denops } from "https://deno.land/x/denops_std@v3.9.1/mod.ts";
-import { globalOptions } from "https://deno.land/x/denops_std@v3.9.1/variable/option.ts";
+} from "https://deno.land/x/denops_std@v3.12.0/function/mod.ts";
+import type { Denops } from "https://deno.land/x/denops_std@v3.12.0/mod.ts";
+import { globalOptions } from "https://deno.land/x/denops_std@v3.12.0/variable/option.ts";
 import {
   Unprintable,
   type UnprintableUserData,
@@ -117,7 +118,7 @@ export class Source extends BaseSource<Params, UserData> {
     return maxAbbrWidth > 0 ? Math.min(maxAbbrWidth, vimColumns) : vimColumns;
   }
 
-  #getRegisters(denops: Denops, registers: string): Promise<RegInfo[]> {
+  async #getRegisters(denops: Denops, registers: string): Promise<RegInfo[]> {
     let regSet = new Set([
       ...(this.#hasClipboard ? VIM_CLIPBOARD_REGISTERS : []),
       ...VIM_REGISTERS,
@@ -125,12 +126,17 @@ export class Source extends BaseSource<Params, UserData> {
     if (registers.length > 0) {
       regSet = new Set(registers.split("").filter((r) => regSet.has(r)));
     }
-    return defer(denops, (helper) =>
-      Array.from(regSet).map((regname) => ({
-        regname,
-        regcontents: getreg(helper, regname, 1, 1) as Promise<string[]>,
-        regtype: getregtype(helper, regname) as Promise<RegType>,
-      }))) as Promise<RegInfo[]>;
+    const reginfos = await defer(
+      denops,
+      (helper) =>
+        Array.from(regSet).map(async (regname) => ({
+          ...await getreginfo(helper, regname),
+          regname,
+        })),
+    );
+    return reginfos.filter(
+      (reginfo): reginfo is RegInfo => Object.hasOwn(reginfo, "regcontents"),
+    );
   }
 
   #generateItems(regInfos: RegInfo[]): Item[] {
