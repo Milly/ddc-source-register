@@ -7,7 +7,7 @@ import {
   BaseSource,
   type Item as DdcItem,
 } from "https://deno.land/x/ddc_vim@v3.6.0/types.ts";
-import { defer } from "https://deno.land/x/denops_defer@v0.6.0/batch/defer.ts";
+import { defer } from "https://deno.land/x/denops_defer@v1.0.0/batch/defer.ts";
 import {
   getreginfo,
   has,
@@ -17,7 +17,7 @@ import { globalOptions } from "https://deno.land/x/denops_std@v5.0.1/variable/op
 import {
   Unprintable,
   type UnprintableUserData,
-} from "https://deno.land/x/ddc_unprintable@v2.0.0/mod.ts";
+} from "https://deno.land/x/ddc_unprintable@v2.0.1/mod.ts";
 
 type Params = {
   /** Register names to collect. (default: "")
