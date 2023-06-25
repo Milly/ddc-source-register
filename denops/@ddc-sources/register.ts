@@ -18,6 +18,7 @@ import {
   Unprintable,
   type UnprintableUserData,
 } from "https://deno.land/x/ddc_unprintable@v2.0.1/mod.ts";
+import { intersection } from "https://deno.land/x/set_operations@v1.1.1/mod.ts";
 
 type Params = {
   /** Register names to collect. (default: "")
@@ -119,13 +120,13 @@ export class Source extends BaseSource<Params, UserData> {
   }
 
   async #getRegisters(denops: Denops, registers: string): Promise<RegInfo[]> {
-    let regSet = new Set<string>([
+    const allRegSet = new Set<string>([
       ...(this.#hasClipboard ? VIM_CLIPBOARD_REGISTERS : []),
       ...VIM_REGISTERS,
     ]);
-    if (registers.length > 0) {
-      regSet = new Set(registers.split("").filter((r) => regSet.has(r)));
-    }
+    const regSet = registers.length > 0
+      ? intersection(allRegSet, new Set(registers.split("")))
+      : allRegSet;
     const reginfos = await defer(
       denops,
       (helper) => (Array.from(regSet).map(async (regname) => ({
