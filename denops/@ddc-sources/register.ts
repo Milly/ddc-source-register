@@ -2,18 +2,18 @@ import type {
   GatherArguments,
   OnCompleteDoneArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.6.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v4.1.0/base/source.ts";
 import {
   BaseSource,
   type Item as DdcItem,
-} from "https://deno.land/x/ddc_vim@v3.6.0/types.ts";
+} from "https://deno.land/x/ddc_vim@v4.1.0/types.ts";
 import { defer } from "https://deno.land/x/denops_defer@v1.0.0/batch/defer.ts";
 import {
   getreginfo,
   has,
-} from "https://deno.land/x/denops_std@v5.0.1/function/mod.ts";
-import type { Denops } from "https://deno.land/x/denops_std@v5.0.1/mod.ts";
-import { globalOptions } from "https://deno.land/x/denops_std@v5.0.1/variable/option.ts";
+} from "https://deno.land/x/denops_std@v5.0.2/function/mod.ts";
+import type { Denops } from "https://deno.land/x/denops_std@v5.0.2/mod.ts";
+import { globalOptions } from "https://deno.land/x/denops_std@v5.0.2/variable/option.ts";
 import {
   Unprintable,
   type UnprintableUserData,
