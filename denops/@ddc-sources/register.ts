@@ -1,24 +1,20 @@
+import type { Denops } from "jsr:@denops/core@^7.0.0";
+import { getreginfo, has } from "jsr:@denops/std@^7.0.0/function";
+import { globalOptions } from "jsr:@denops/std@^7.0.0/variable";
+import {
+  Unprintable,
+  type UnprintableUserData,
+} from "jsr:@milly/ddc-unprintable@^4.0.0";
+import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
 import type {
   GatherArguments,
   OnCompleteDoneArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v4.1.0/base/source.ts";
+} from "jsr:@shougo/ddc-vim@^6.0.0/source";
 import {
   BaseSource,
   type Item as DdcItem,
-} from "https://deno.land/x/ddc_vim@v4.1.0/types.ts";
-import { defer } from "https://deno.land/x/denops_defer@v1.0.0/batch/defer.ts";
-import {
-  getreginfo,
-  has,
-} from "https://deno.land/x/denops_std@v5.0.2/function/mod.ts";
-import type { Denops } from "https://deno.land/x/denops_std@v5.0.2/mod.ts";
-import { globalOptions } from "https://deno.land/x/denops_std@v5.0.2/variable/option.ts";
-import {
-  Unprintable,
-  type UnprintableUserData,
-} from "https://deno.land/x/ddc_unprintable@v2.0.1/mod.ts";
-import { intersection } from "https://deno.land/x/set_operations@v1.1.1/mod.ts";
+} from "jsr:@shougo/ddc-vim@^6.0.0/types";
 
 type Params = {
   /** Register names to collect. (default: "")
@@ -83,10 +79,10 @@ export class Source extends BaseSource<Params, UserData> {
       highlightGroup: ctrlCharHlGroup,
       callbackId: `source/${this.name}`,
     });
-    [this.#hasClipboard] = await defer(denops, (helper) => ([
-      has(helper, "clipboard"),
-      this.#unprintable!.onInit({ ...args, denops: helper }),
-    ] as const));
+    [this.#hasClipboard] = await Promise.all([
+      has(denops, "clipboard"),
+      this.#unprintable!.onInit({ ...args, denops }),
+    ]);
   }
 
   override async gather(
@@ -98,10 +94,10 @@ export class Source extends BaseSource<Params, UserData> {
       sourceParams: { registers, maxAbbrWidth, ctrlCharHlGroup },
     } = args;
 
-    const [abbrWidth, regInfos] = await defer(denops, (helper) => ([
-      this.#getAbbrWidth(helper, maxAbbrWidth),
-      this.#getRegisters(helper, registers),
-    ] as const));
+    const [abbrWidth, regInfos] = await Promise.all([
+      this.#getAbbrWidth(denops, maxAbbrWidth),
+      this.#getRegisters(denops, registers),
+    ]);
     this.#unprintable!.abbrWidth = abbrWidth;
     this.#unprintable!.highlightGroup = ctrlCharHlGroup;
     const items = this.#generateItems(regInfos);
@@ -125,15 +121,14 @@ export class Source extends BaseSource<Params, UserData> {
       ...VIM_REGISTERS,
     ]);
     const regSet = registers.length > 0
-      ? intersection(allRegSet, new Set(registers.split("")))
+      ? allRegSet.intersection(new Set(registers.split("")))
       : allRegSet;
-    const reginfos = await defer(
-      denops,
-      (helper) => (Array.from(regSet).map(async (regname) => ({
+    const reginfos = await accumulate(denops, (helper) => {
+      return Promise.all([...regSet].map(async (regname) => ({
         ...await getreginfo(helper, regname),
         regname,
-      }))),
-    );
+      })));
+    });
     return reginfos.filter(
       (reginfo): reginfo is RegInfo => Object.hasOwn(reginfo, "regcontents"),
     );
