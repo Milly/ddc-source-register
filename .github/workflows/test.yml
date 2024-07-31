@@ -34,3 +34,9 @@ jobs:
 
       - name: Check
         run: find . -iname '*.ts' | xargs deno check
+
+      - name: Lint
+        run: deno lint
+
+      - name: Check format
+        run: deno fmt --check
