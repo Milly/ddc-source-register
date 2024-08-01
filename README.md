@@ -18,13 +18,20 @@ Register (yanked text) source plugin for ddc.vim.
 
 ```vim
 call ddc#custom#patch_global('sources', ['register'])
-call ddc#custom#patch_global('sourceOptions', #{
-      \ register: #{
-      \   mark: 'Reg',
-      \ }})
+
+" Optional: Set parameters, see `:help ddc-source-register-params`.
 call ddc#custom#patch_global('sourceParms', #{
       \ register: #{
       \   registers: '0123456789"+*#:',
       \   maxAbbrWidth: 100,
+      \   ctrlCharHlGroup: 'Comment'
+      \ }})
+
+" Optional: Set `ddc-source-option-mark` to indicate the source name.
+" Optional: Set `ddc-source-option-maxKeywordLength` to exclude too long text.
+call ddc#custom#patch_global('sourceOptions', #{
+      \ register: #{
+      \   mark: 'Reg',
+      \   maxKeywordLength: 100,
       \ }})
 ```

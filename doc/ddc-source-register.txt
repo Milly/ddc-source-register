@@ -35,14 +35,21 @@ https://github.com/Shougo/ddc.vim
 EXAMPLES					*ddc-source-register-examples*
 >
 	call ddc#custom#patch_global('sources', ['register'])
-	call ddc#custom#patch_global('sourceOptions', #{
-	      \ register: #{
-	      \   mark: 'Reg',
-	      \ }})
+
+	" Optional: Set parameters, see `:help ddc-source-register-params`.
 	call ddc#custom#patch_global('sourceParms', #{
 	      \ register: #{
 	      \   registers: '0123456789"+*#:',
 	      \   maxAbbrWidth: 100,
+	      \   ctrlCharHlGroup: 'Comment'
+	      \ }})
+
+	" Optional: Set `ddc-source-option-mark` to indicate the source name.
+	" Optional: Set `ddc-source-option-maxKeywordLength` to exclude too long text.
+	call ddc#custom#patch_global('sourceOptions', #{
+	      \ register: #{
+	      \   mark: 'Reg',
+	      \   maxKeywordLength: 100,
 	      \ }})
 <
 
@@ -60,6 +67,7 @@ registers	(string)
 				      *ddc-source-register-param-maxAbbrWidth*
 maxAbbrWidth	(number)
 		Max width of the abbreviates column.
+		Items that exceed this width will be truncated.
 		If 0 is specified, be unlimited.
 
 		Default: 0
