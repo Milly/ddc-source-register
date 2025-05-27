@@ -24,6 +24,7 @@ jobs:
         deno_version:
           - "1.45.x"
           - "1.x"
+          - "2.x"
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
