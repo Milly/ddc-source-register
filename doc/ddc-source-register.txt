@@ -42,6 +42,7 @@ EXAMPLES					*ddc-source-register-examples*
 	      \   registers: '0123456789"+*#:',
 	      \   maxAbbrWidth: 100,
 	      \   ctrlCharHlGroup: 'Comment'
+	      \   extractWords: v:true,
 	      \ }})
 
 	" Optional: Set `ddc-source-option-mark` to indicate the source name.
@@ -79,6 +80,15 @@ ctrlCharHlGroup	(string)
 
 		Default: "SpecialKey"
 
+				      *ddc-source-register-param-extractWords*
+extractWords	(boolean)
+		Whether to extract words from the register value.
+		If true, each word in the register value will become a item.
+		If false, the register value is treated as a single item.
+		Note that words are extracted according to 'iskeyword' option.
+
+		Default: false
+
 
 ==============================================================================
 ITEM ATTRIBUTES				 *ddc-source-register-item-attributes*
@@ -102,6 +112,8 @@ kind		(string)
 		"c"	for |characterwise| text
 		"l"	for |linewise| text
 		"b"	for |blockwise-visual| text
+		"w"	for |word| (see |ddc-source-register-param-extractWords|)
+		""	otherwise
 
 				     *ddc-source-register-item-attribute-menu*
 menu		(string)
