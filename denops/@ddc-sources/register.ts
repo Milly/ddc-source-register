@@ -4,17 +4,15 @@ import { globalOptions } from "jsr:@denops/std@^7.0.0/variable";
 import {
   Unprintable,
   type UnprintableUserData,
-} from "jsr:@milly/ddc-unprintable@^4.0.0";
+} from "jsr:@milly/ddc-unprintable@^5.0.0";
 import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
-import type {
-  GatherArguments,
-  OnCompleteDoneArguments,
-  OnInitArguments,
-} from "jsr:@shougo/ddc-vim@^6.0.0/source";
 import {
   BaseSource,
-  type Item as DdcItem,
-} from "jsr:@shougo/ddc-vim@^6.0.0/types";
+  type GatherArguments,
+  type OnCompleteDoneArguments,
+  type OnInitArguments,
+} from "jsr:@shougo/ddc-vim@^9.0.0/source";
+import { type Item as DdcItem } from "jsr:@shougo/ddc-vim@^9.0.0/types";
 
 type Params = {
   /** Register names to collect. (default: "")
