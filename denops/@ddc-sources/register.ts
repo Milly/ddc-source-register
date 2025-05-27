@@ -4,7 +4,7 @@ import { globalOptions } from "jsr:@denops/std@^7.0.0/variable";
 import {
   Unprintable,
   type UnprintableUserData,
-} from "jsr:@milly/ddc-unprintable@^4.0.0";
+} from "jsr:@milly/ddc-unprintable@^5.0.0";
 import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
 import {
   BaseSource,
