@@ -1,10 +1,12 @@
 import type { Denops } from "jsr:@denops/core@^7.0.0";
 import { getreginfo, has } from "jsr:@denops/std@^7.0.0/function";
+import * as op from "jsr:@denops/std@^7.0.0/option";
 import { globalOptions } from "jsr:@denops/std@^7.0.0/variable";
 import {
   Unprintable,
   type UnprintableUserData,
 } from "jsr:@milly/ddc-unprintable@^5.0.0";
+import { VimRegExp } from "jsr:@milly/vimregexp@^2.0.0/regexp";
 import { accumulate } from "jsr:@milly/denops-batch-accumulate@^1.0.0";
 import {
   BaseSource,
@@ -31,6 +33,12 @@ type Params = {
    * If empty, highlight is disabled.
    */
   ctrlCharHlGroup: string;
+  /** Whether to extract words from the register value. (default: false)
+   *
+   * If true, words are extracted from the register value, and each word becomes a candidate item.
+   * If false, the register value is treated as a single item.
+   */
+  extractWords: boolean;
 };
 
 type OperatorWise = "c" | "l" | "b" | "";
@@ -67,6 +75,7 @@ export class Source extends BaseSource<Params, UserData> {
       registers: "",
       maxAbbrWidth: 0,
       ctrlCharHlGroup: "SpecialKey",
+      extractWords: false,
     };
   }
 
@@ -89,16 +98,17 @@ export class Source extends BaseSource<Params, UserData> {
     const {
       denops,
       context: { nextInput },
-      sourceParams: { registers, maxAbbrWidth, ctrlCharHlGroup },
+      sourceParams: { registers, maxAbbrWidth, ctrlCharHlGroup, extractWords },
     } = args;
 
-    const [abbrWidth, regInfos] = await Promise.all([
+    const [abbrWidth, regInfos, wordRegex] = await Promise.all([
       this.#getAbbrWidth(denops, maxAbbrWidth),
       this.#getRegisters(denops, registers),
+      extractWords ? this.#getWordRegex(denops) : undefined,
     ]);
     this.#unprintable!.abbrWidth = abbrWidth;
     this.#unprintable!.highlightGroup = ctrlCharHlGroup;
-    const items = this.#generateItems(regInfos);
+    const items = this.#generateItems(regInfos, wordRegex);
     return this.#unprintable!.convertItems(denops, items, nextInput);
   }
 
@@ -132,8 +142,19 @@ export class Source extends BaseSource<Params, UserData> {
     );
   }
 
-  #generateItems(regInfos: RegInfo[]): Item[] {
-    return regInfos.map(({ regname, regcontents, regtype }): Item => {
+  async #getWordRegex(denops: Denops): Promise<RegExp> {
+    const iskeyword = await op.iskeyword.getLocal(denops);
+    return new VimRegExp(
+      "\\k\\+",
+      {
+        iskeyword,
+        flags: "gi",
+      },
+    );
+  }
+
+  #generateItems(regInfos: RegInfo[], wordRegex?: RegExp): Item[] {
+    let items = regInfos.map(({ regname, regcontents, regtype }): Item => {
       const word = regContentsTypeToText(regcontents, regtype);
       const wise = regTypeToOperatorWise(regtype);
       return {
@@ -143,6 +164,18 @@ export class Source extends BaseSource<Params, UserData> {
         menu: regname,
       };
     });
+    if (wordRegex) {
+      items = items.flatMap((item): Item[] => {
+        const words = item.word.matchAll(wordRegex);
+        return [...words].map(([word], index) => ({
+          word,
+          info: word,
+          kind: "w",
+          menu: `${item.menu}[${index}]`,
+        }));
+      });
+    }
+    return items;
   }
 }
 

@@ -25,6 +25,7 @@ call ddc#custom#patch_global('sourceParms', #{
       \   registers: '0123456789"+*#:',
       \   maxAbbrWidth: 100,
       \   ctrlCharHlGroup: 'Comment'
+      \   extractWords: v:true,
       \ }})
 
 " Optional: Set `ddc-source-option-mark` to indicate the source name.
