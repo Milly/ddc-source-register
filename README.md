@@ -1,20 +1,41 @@
 # ddc-source-register
 
 [![license:MIT](https://img.shields.io/github/license/Milly/ddc-source-register?style=flat-square)](LICENSE)
-[![Vim doc](https://img.shields.io/badge/doc-%3Ah%20ddc--source--register-orange?style=flat-square&logo=vim)](doc/ddc-source-register.txt)
+[![Vim doc](https://img.shields.io/badge/doc-%3Ah%20ddc--source--register-orange?style=flat-square&logo=vim)][doc]
 
-Register (yanked text) source plugin for ddc.vim.
+_ddc-source-register_ is a [ddc.vim] source plugin that collects text or words
+from Vim registers.
 
-- Supports pasting of multiple lines and control codes.
-- Supports pasting in command line mode.
-- Supports control code highlighting. (Requires highlight capable UI)
+## Features
 
-## Required
+- Collects values from registers, or extracts word from register values.
+- Supports pasting multiple lines and control codes.
+- Works in command-line mode.
+- Highlights control codes (requires a highlight-capable UI like [ddc-ui-pum]).
 
-- [denops.vim](https://github.com/vim-denops/denops.vim)
-- [ddc.vim](https://github.com/Shougo/ddc.vim)
+## Installation
+
+### Required
+
+- [denops.vim]
+- [ddc.vim]
+
+[denops.vim]: https://github.com/vim-denops/denops.vim
+[ddc.vim]: https://github.com/Shougo/ddc.vim
+
+### Optional
+
+- [ddc-ui-pum]
+- [pum.vim]
+
+[ddc-ui-pum]: https://github.com/Shougo/ddc-ui-pum
+[pum.vim]: https://github.com/Shougo/pum.vim
 
 ## Configuration
+
+See [`:help ddc-source-register`][doc] for details.
+
+[doc]: doc/ddc-source-register.txt
 
 ```vim
 call ddc#custom#patch_global('sources', ['register'])

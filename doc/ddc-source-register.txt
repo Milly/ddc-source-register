@@ -2,6 +2,7 @@
 
 Author: Milly (https://github.com/Milly)
 License: MIT license
+Last change: 29 May 2025
 
 CONTENTS					*ddc-source-register-contents*
 
@@ -15,20 +16,29 @@ Item Attributes		|ddc-source-register-item-attributes|
 ==============================================================================
 INTRODUCTION				    *ddc-source-register-introduction*
 
-This source collects |registers|.
-Excludes those used for |recording|.
+*ddc-source-register* is a |ddc| source plugin that collects text or words
+from |registers|. |ddc-sources|
 
-Note that if 0x80 byte is contains, it will be determined that the register
-was used for recording.
+FEATURES
+
+- Collects values from |registers|, or extracts |word| from register values.
+- Supports pasting multiple lines and control codes.
+- Works in command-line mode.
+- Highlights control codes (requires a highlight-capable UI).
 
 
 ==============================================================================
 INSTALL						 *ddc-source-register-install*
 
-Please install both "denops.vim" and "ddc.vim".
+You need to install both "|denops|.vim" and "|ddc|.vim".
 
 https://github.com/vim-denops/denops.vim
 https://github.com/Shougo/ddc.vim
+
+It is recommended to install "|ddc-ui-pum|" and "|pum|.vim" as options.
+
+https://github.com/Shougo/ddc-ui-pum
+https://github.com/Shougo/pum.vim
 
 
 ==============================================================================
