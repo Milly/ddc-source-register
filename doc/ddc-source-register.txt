@@ -2,7 +2,7 @@
 
 Author: Milly (https://github.com/Milly)
 License: MIT license
-Last change: 29 May 2025
+Last change: 22 Jul 2025
 
 CONTENTS					*ddc-source-register-contents*
 
@@ -85,7 +85,7 @@ maxAbbrWidth	(number)
 
 				   *ddc-source-register-param-ctrlCharHlGroup*
 ctrlCharHlGroup	(string)
-		Highlight group name for unprintable chars.
+		Highlight group name for unprintable chars. |highlight-group|
 		If empty, highlight is disabled.
 
 		Default: "SpecialKey"
@@ -93,7 +93,7 @@ ctrlCharHlGroup	(string)
 				      *ddc-source-register-param-extractWords*
 extractWords	(boolean)
 		Whether to extract words from the register value.
-		If true, each word in the register value will become a item.
+		If true, each |word| in the register value will become an item.
 		If false, the register value is treated as a single item.
 		Note that words are extracted according to 'iskeyword' option.
 
@@ -105,15 +105,15 @@ ITEM ATTRIBUTES				 *ddc-source-register-item-attributes*
 
 				     *ddc-source-register-item-attribute-abbr*
 abbr		(string)
-		Register value.
-		Control code is replaced with "^X" and highlighted with
+		Human-readable register value.
+		Control codes are replaced with "^X" and highlighted with
 		|ddc-source-register-param-ctrlCharHlGroup|.
 		It is truncated by |ddc-source-register-param-maxAbbrWidth|.
 
 				     *ddc-source-register-item-attribute-info*
 info		(string)
-		Register value.
-		Control codes is contains as is.
+		Raw register value.
+		Control codes are included verbatim and are not converted.
 
 				     *ddc-source-register-item-attribute-kind*
 kind		(string)
@@ -127,12 +127,15 @@ kind		(string)
 
 				     *ddc-source-register-item-attribute-menu*
 menu		(string)
-		Register name.
+		Register name. |registers|
 
 				     *ddc-source-register-item-attribute-word*
 word		(string)
-		Register value.
-		Control code is replaced with "?".
+		The completion word of an item.  It is used for matching
+		inputs.
+		Control codes are replaced with "?" because |ddc|.vim does not
+		support it.  |ddc-source-register| uses the info attribute to
+		insert such characters when necessary.
 
 
 ==============================================================================
