@@ -1,0 +1,20 @@
+{
+  "name": "@milly/ddc-source-register",
+  "exports": {
+    ".": "./main.ts"
+  },
+  "imports": {
+    "@shougo/ddc-vim": "jsr:@shougo/ddc-vim@~10.3.0",
+    "@denops/std": "jsr:@denops/std@~8.2.0",
+    "@milly/ddc-unprintable": "jsr:@milly/ddc-unprintable@~6.0.0",
+    "@milly/vimregexp": "jsr:@milly/vimregexp@~2.0.0"
+  },
+  "tasks": {
+    "cache": "deno install --reload",
+    "check": "deno check **/*.ts && deno fmt --check **/*.ts && deno lint",
+    "fmt": "deno fmt **/*.ts",
+    "lint": "deno lint",
+    "lint-fix": "deno lint --fix",
+    "test": "deno test -A --parallel --shuffle **/*.ts"
+  }
+}

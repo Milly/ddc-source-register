@@ -4,11 +4,16 @@ on:
   push:
     branches:
       - master
+    paths:
+      - "**.md"
+      - "**.ts"
+      - "**/deno.jsonc"
+      - ".github/workflows/test.yml"
   pull_request:
     paths:
       - "**.md"
       - "**.ts"
-      - "deno.jsonc"
+      - "**/deno.jsonc"
       - ".github/workflows/test.yml"
 
 defaults:
@@ -23,25 +28,24 @@ jobs:
         runner:
           - ubuntu-latest
         deno_version:
-          - "1.45.x"
-          - "1.x"
+          - "2.3.0"
           - "2.x"
     runs-on: ${{ matrix.runner }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: "${{ matrix.deno_version }}"
 
+      - name: Cache
+        if: ${{ !cancelled() }}
+        run: deno task cache
+
       - name: Check
         if: ${{ !cancelled() }}
-        run: find . -iname '*.ts' | xargs deno check
+        run: deno task check
 
-      - name: Lint
+      - name: Test
         if: ${{ !cancelled() }}
-        run: deno lint
-
-      - name: Check format
-        if: ${{ !cancelled() }}
-        run: deno fmt --check
+        run: deno task test
