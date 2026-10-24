@@ -7,11 +7,13 @@ on:
     paths:
       - "**.md"
       - "**.ts"
+      - "**/deno.jsonc"
       - ".github/workflows/test.yml"
   pull_request:
     paths:
       - "**.md"
       - "**.ts"
+      - "**/deno.jsonc"
       - ".github/workflows/test.yml"
 
 defaults:
@@ -36,14 +38,14 @@ jobs:
         with:
           deno-version: "${{ matrix.deno_version }}"
 
+      - name: Cache
+        if: ${{ !cancelled() }}
+        run: deno task cache
+
       - name: Check
         if: ${{ !cancelled() }}
-        run: find . -iname '*.ts' | xargs deno check
+        run: deno task check
 
-      - name: Lint
+      - name: Test
         if: ${{ !cancelled() }}
-        run: deno lint
-
-      - name: Check format
-        if: ${{ !cancelled() }}
-        run: deno fmt --check
+        run: deno task test

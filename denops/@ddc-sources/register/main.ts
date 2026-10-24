@@ -1,20 +1,17 @@
-import type { Denops } from "jsr:@denops/core@^8.0.1";
-import { getreginfo, has } from "jsr:@denops/std@^8.2.0/function";
-import * as op from "jsr:@denops/std@^8.2.0/option";
-import { globalOptions } from "jsr:@denops/std@^8.2.0/variable";
-import {
-  Unprintable,
-  type UnprintableUserData,
-} from "jsr:@milly/ddc-unprintable@^6.0.0";
-import { VimRegExp } from "jsr:@milly/vimregexp@^2.0.0/regexp";
-import { accumulate } from "jsr:@denops/std@^8.2.0/batch";
+import type { Denops } from "@denops/std";
+import { getreginfo, has } from "@denops/std/function";
+import * as op from "@denops/std/option";
+import { globalOptions } from "@denops/std/variable";
+import { Unprintable, type UnprintableUserData } from "@milly/ddc-unprintable";
+import { VimRegExp } from "@milly/vimregexp/regexp";
+import { accumulate } from "@denops/std/batch";
 import {
   BaseSource,
   type GatherArguments,
   type OnCompleteDoneArguments,
   type OnInitArguments,
-} from "jsr:@shougo/ddc-vim@^10.0.0/source";
-import { type Item as DdcItem } from "jsr:@shougo/ddc-vim@^10.0.0/types";
+} from "@shougo/ddc-vim/source";
+import type { Item as DdcItem } from "@shougo/ddc-vim/types";
 
 type Params = {
   /** Register names to collect. (default: "")

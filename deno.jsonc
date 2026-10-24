@@ -1,0 +1,14 @@
+{
+  "lock": false,
+  "workspace": [
+    "./denops/@ddc-sources/register"
+  ],
+  "tasks": {
+    "cache": "deno install --reload",
+    "check": "deno task --cwd denops/@ddc-sources/register check",
+    "fmt": "deno task --cwd denops/@ddc-sources/register fmt",
+    "lint": "deno task --cwd denops/@ddc-sources/register lint",
+    "lint-fix": "deno task --cwd denops/@ddc-sources/register lint-fix",
+    "test": "deno task --cwd denops/@ddc-sources/register test"
+  }
+}
