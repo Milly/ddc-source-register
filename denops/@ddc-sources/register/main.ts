@@ -13,7 +13,7 @@ import {
 } from "@shougo/ddc-vim/source";
 import type { Item as DdcItem } from "@shougo/ddc-vim/types";
 
-type Params = {
+export type Params = {
   /** Register names to collect. (default: "")
    *
    * Specify the name of the register to collect, such as "012ab#".
