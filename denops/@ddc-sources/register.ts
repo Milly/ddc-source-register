@@ -7,7 +7,7 @@ import {
   type UnprintableUserData,
 } from "jsr:@milly/ddc-unprintable@^6.0.0";
 import { VimRegExp } from "jsr:@milly/vimregexp@^2.0.0/regexp";
-import { accumulate } from "jsr:@milly/denops-batch-accumulate@^3.0.1";
+import { accumulate } from "jsr:@denops/std@^8.2.0/batch";
 import {
   BaseSource,
   type GatherArguments,
